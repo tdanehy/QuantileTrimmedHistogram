@@ -13,6 +13,7 @@ plotQthist = function(df, EndBarColor = "red", MiddleBarColor = "black" ) {
   quant = unname(quantile(df, probs = c((q/100), (1-(q/100)))))
   seq_10 = seq(quant[1], quant[2], length = b)
   div = c(-Inf, round(seq_10), Inf)
+  
   colors_vect = c( EndBarColor , rep(MiddleBarColor, (length(div)-3)), EndBarColor) # creates a vector for the colors
   
   df = cutDists(df, divisions= div)
@@ -34,10 +35,13 @@ plotQthist = function(df, EndBarColor = "red", MiddleBarColor = "black" ) {
     theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
     theme(plot.title = element_text(hjust = 0.5)) + # Center title
     ggtitle("Quantile Trimmed Histogram") +
-    theme(legend.position="bottom") 
-  
+    theme(legend.position="bottom") +
+    geom_text(aes(label= paste(q,"%", sep='')), data=df[c(1,length(df$Freq)),], vjust=-1)
   return(g)
 }
+
+
+plotQthist(y2)
 
 ######################################## helper functions from GenomicDistributions
 

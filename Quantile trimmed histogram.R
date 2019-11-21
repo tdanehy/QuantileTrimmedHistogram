@@ -82,36 +82,6 @@ cutDists = function(dists, divisions = c(-Inf, -1e6, -1e4, -1000, -100, 0, 100, 
   return(df)
 }
 
-########### PLOTTING
-#### this function calls cutDists
-plotFeatureDist = function(dists, featureName="features") {
-  
-  df = cutDists(dists)
-  if ("name" %in% names(df)){
-    # It has multiple regions
-    g = ggplot(df, aes(x=cuts, y=Freq, fill=name)) + 
-      facet_grid(. ~name)
-  } else {
-    g = ggplot(df, aes(x=cuts, y=Freq))
-  }
-  
-  g = g +
-    geom_bar(stat="identity") + 
-    geom_vline(xintercept = (length(unique(df$cuts))+1)/2, color="darkgreen") +
-    theme_classic() + 
-    theme(aspect.ratio=1) + 
-    theme_blank_facet_label() + 
-    xlab(paste("Distance to", featureName)) +
-    ylab("Number of regions") +
-    theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
-    theme(plot.title = element_text(hjust = 0.5)) + # Center title
-    ggtitle(paste("Distribution relative to", featureName)) +
-    theme(legend.position="bottom")
-  
-  return(g)
-}
-
-
 ######### CHANGING THEME
 theme_blank_facet_label = function() {
   return(theme(

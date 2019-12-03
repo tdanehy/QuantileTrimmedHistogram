@@ -41,13 +41,12 @@ plotQthist = function(df, EndBarColor = "red", MiddleBarColor = "black" ) {
 }
 
 
-plotQthist(y2)
-
 ######################################## helper functions from GenomicDistributions
 
 
 ############ LABEL CUTS
 ### this function doesn't call any of the other internal functions
+# need to put the comma function in labelCuts because it takes a numeric vector and produces character labels
 labelCuts = function(breakPoints, digits=1, collapse="-", infBins=FALSE) {
   labels = 
     apply(round(cbind( breakPoints[-length(breakPoints)],	
@@ -80,11 +79,12 @@ cutDists = function(dists, divisions = c(-Inf, -1e6, -1e4, -1000, -100, 0, 100, 
     return(xb)
   }
   
-  labels = labelCuts(divisions, collapse=" to ", infBins=TRUE)
+  labels = labelCuts(signif(divisions,3), collapse=" to ", infBins=TRUE)
   cuts = cut(dists, divisions, labels)
   df = as.data.frame(table(cuts))
   return(df)
 }
+
 
 ######### CHANGING THEME
 theme_blank_facet_label = function() {

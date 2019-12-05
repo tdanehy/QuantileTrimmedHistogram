@@ -4,19 +4,12 @@ calcWidth = function(query) {
 }
 
 ## plotting function
-plotQthist = function(df, EndBarColor = "red", MiddleBarColor = "black" ) {
-  n = length(df) # finding number of observations
-  if (n > 1000) {n = 1000}
-  if (n < 100) {n = 100}
-  q = (11 - round(n/100)) # finding quantiles that should be used for end boxes
-  b = ((20-(2*q))/q) # finding the number of bins based on the quantiles
-  quant = unname(quantile(df, probs = c((q/100), (1-(q/100)))))
-  seq_10 = seq(quant[1], quant[2], length = b)
-  div = c(-Inf, round(seq_10), Inf)
-  
+plotQthist = function(df, EndBarColor = "red", MiddleBarColor = "black", bins=NULL ) {
+  q = calcQuantiles(df) # calculating quantiles based on size of dataset
+  div = calcDivisions(df, q)  # calculating divisions based on quantiles
   colors_vect = c( EndBarColor , rep(MiddleBarColor, (length(div)-3)), EndBarColor) # creates a vector for the colors
   
-  df = cutDists(df, divisions= div)
+  df = cutDists(df, divisions= div) # calculating a frequency table with the specified divisions
   if ("name" %in% names(df)){
     # It has multiple regions
     g = ggplot(df, aes(x=cuts, y=Freq, fill=name)) + 
@@ -42,6 +35,24 @@ plotQthist = function(df, EndBarColor = "red", MiddleBarColor = "black" ) {
 
 
 ######################################## helper functions from GenomicDistributions
+############# calulating the divisions
+
+calcQuantiles = function(df){
+  n = length(df) # finding number of observations
+  if (n > 1000) {n = 1000}
+  if (n < 100) {n = 100}
+  q = (11 - round(n/100)) # finding quantiles that should be used for end boxes
+  return(q)
+}
+
+calcDivisions = function(df, q){
+  q= as.numeric(q)
+  b = ((20-(2*q))/q) # finding the number of bins based on the quantiles
+  quant = unname(quantile(df, probs = c((q/100), (1-(q/100)))))
+  seq_10 = seq(quant[1], quant[2], length = b)
+  div = c(-Inf, round(seq_10), Inf)
+  return(div)
+}
 
 
 ############ LABEL CUTS

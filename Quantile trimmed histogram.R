@@ -4,9 +4,30 @@ calcWidth = function(query) {
 }
 
 ## plotting function
-plotQthist = function(df, EndBarColor = "red", MiddleBarColor = "black", bins=NULL ) {
-  q = calcQuantiles(df) # calculating quantiles based on size of dataset
-  div = calcDivisions(df, q)  # calculating divisions based on quantiles
+plotQthist = function(df, EndBarColor = "maroon", MiddleBarColor = "gray57", quantile=NULL, bins=NULL) {
+  # if user gives no bins or quantiles, we calculate everything based on size of dataset
+  if(is.null(quantile) & is.null(bins)){
+    q = calcQuantiles(df) 
+    div = calcDivisions(df, q)
+  }
+  # if user gives both bins and quantiles, use their values entirely
+  if(!is.null(quantile) & !is.null(bins)){
+    q = quantile
+    div = calcDivisions(df, q, bins=bins)
+  }
+  # if user gives quantiles but no bins, we use their quantile to calculate the divisions
+  # this case scenario causes nonsensical results when q is greater than 5
+  if(!is.null(quantile) & is.null(bins)){
+    q = quantile
+    div = calcDivisions(df, q)
+  }
+  # if user gives bins but no quantiles, we calculate quantiles then insert bin number into the calcDivisions function
+  if(is.null(quantile) & !is.null(bins)){
+    q = calcQuantiles(df) 
+    div = calcDivisions(df, q, bins= bins)
+  }
+  
+  
   colors_vect = c( EndBarColor , rep(MiddleBarColor, (length(div)-3)), EndBarColor) # creates a vector for the colors
   
   df = cutDists(df, divisions= div) # calculating a frequency table with the specified divisions
@@ -22,9 +43,9 @@ plotQthist = function(df, EndBarColor = "red", MiddleBarColor = "black", bins=NU
     geom_bar(stat="identity", fill = colors_vect) + 
     theme_classic() + 
     theme(aspect.ratio=1) + 
-    theme_blank_facet_label() + 
-    xlab("Widths of sequences") +
+    theme_blank_facet_label() +
     ylab("Frequency") +
+    xlab("") +
     theme(axis.text.x=element_text(angle = 90, hjust = 1, vjust=0.5)) + # vlab()
     theme(plot.title = element_text(hjust = 0.5)) + # Center title
     ggtitle("Quantile Trimmed Histogram") +
@@ -35,8 +56,8 @@ plotQthist = function(df, EndBarColor = "red", MiddleBarColor = "black", bins=NU
 
 
 ######################################## helper functions from GenomicDistributions
-############# calulating the divisions
 
+############# calculating the quantiles
 calcQuantiles = function(df){
   n = length(df) # finding number of observations
   if (n > 1000) {n = 1000}
@@ -45,15 +66,23 @@ calcQuantiles = function(df){
   return(q)
 }
 
-calcDivisions = function(df, q){
-  q= as.numeric(q)
-  b = ((20-(2*q))/q) # finding the number of bins based on the quantiles
+############# calulating the divisions
+calcDivisions = function(df, q, bins=NULL){
+  q = as.numeric(q)
+  if(q>=50){
+    stop("Quantile can not be larger than 50. Optimal size is under 10.")
+  }
+  if(!is.null(bins)){
+    b = bins +1
+  } 
+  else {
+    b = ((20-(2*q))/q) # FIX THIS!!! finding the number of bins based on the quantiles
+  }
   quant = unname(quantile(df, probs = c((q/100), (1-(q/100)))))
   seq_10 = seq(quant[1], quant[2], length = b)
   div = c(-Inf, round(seq_10), Inf)
   return(div)
 }
-
 
 ############ LABEL CUTS
 ### this function doesn't call any of the other internal functions

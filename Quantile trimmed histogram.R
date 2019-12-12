@@ -4,7 +4,7 @@ calcWidth = function(query) {
 }
 
 ## plotting function
-plotQthist = function(df, EndBarColor = "maroon", MiddleBarColor = "gray57", quantile=NULL, bins=NULL) {
+plotQthist = function(df, EndBarColor = "gray57", MiddleBarColor = "gray27", quantile=NULL, bins=NULL) {
   # if user gives no bins or quantiles, we calculate everything based on size of dataset
   if(is.null(quantile) & is.null(bins)){
     q = calcQuantiles(df) 
